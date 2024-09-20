@@ -1,36 +1,32 @@
-const mo = new URLSearchParams(window.location.search).get('mo');
-const pass = new URLSearchParams(window.location.search).get('pass');
+// pages/api/temp-mail-ip.js
 
-const url = 'https://gateway.eci.gov.in/api/v1/authn-voter/password-flow';
+export default async function handler(req, res) {
+  // Generate a random IP address
+  const randomIP = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
 
-const data = JSON.stringify({
-    applicationName: "VHA",
-    otp: "",
-    password: pass,
-    roleCode: "*",
-    username: mo
-});
+  try {
+    // Make a POST request using Fetch API
+    const response = await fetch('https://mob2.temp-mail.org/mailbox', {
+      method: 'POST',
+      headers: {
+        'User-Agent': '3.48',
+        'Accept': 'application/json',
+        'X-Forwarded-For': randomIP,  // Include the random IP address in the header
+      },
+    });
 
-const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'Content-Length': data.length,
-    'Host': 'gateway.eci.gov.in',
-    'Connection': 'Keep-Alive',
-    'User-Agent': 'okhttp/3.14.7'
-};
+    // Check if the response is OK
+    if (!response.ok) {
+      throw new Error('Failed to fetch data from the external API');
+    }
 
-fetch(url, {
-    method: 'POST',
-    headers: headers,
-    body: data,
-    credentials: 'include'
-})
-.then(response => response.json())
-.then(json => {
-    // Handle the JSON response here
-})
-.catch(error => {
-    console.error('Error:', error);
-});
+    // Parse the response as text
+    const data = await response.text();  // If response is JSON, use response.json()
 
+    // Send the response back to the client
+    res.status(200).json({ response: data });
+  } catch (error) {
+    // Handle errors and send a response
+    res.status(500).json({ message: 'Error fetching data', error: error.message });
+  }
+}
