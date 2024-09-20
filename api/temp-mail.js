@@ -1,23 +1,36 @@
-const ip = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
+const mo = new URLSearchParams(window.location.search).get('mo');
+const pass = new URLSearchParams(window.location.search).get('pass');
 
-const fetch = require('node-fetch');
+const url = 'https://gateway.eci.gov.in/api/v1/authn-voter/password-flow';
 
-const url = 'https://mob2.temp-mail.org/mailbox';
-const options = {
-  method: 'POST',
-  headers: {
-    'User-Agent': '3.48',
+const data = JSON.stringify({
+    applicationName: "VHA",
+    otp: "",
+    password: pass,
+    roleCode: "*",
+    username: mo
+});
+
+const headers = {
     'Accept': 'application/json',
-    'X-Forwarded-For': ip,
-  },
+    'Content-Type': 'application/json',
+    'Content-Length': data.length,
+    'Host': 'gateway.eci.gov.in',
+    'Connection': 'Keep-Alive',
+    'User-Agent': 'okhttp/3.14.7'
 };
 
-fetch(url, options)
-  .then(response => response.json())
-  .then(data => {
-    console.log(JSON.stringify(data));
-  })
-  .catch(error => {
+fetch(url, {
+    method: 'POST',
+    headers: headers,
+    body: data,
+    credentials: 'include'
+})
+.then(response => response.json())
+.then(json => {
+    // Handle the JSON response here
+})
+.catch(error => {
     console.error('Error:', error);
-  });
+});
 
