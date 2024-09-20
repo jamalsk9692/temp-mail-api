@@ -1,23 +1,23 @@
-// Function to generate random IP
-function generateRandomIP() {
-  return `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
-}
+const ip = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
 
-// Request options
+const fetch = require('node-fetch');
+
+const url = 'https://mob2.temp-mail.org/mailbox';
 const options = {
   method: 'POST',
   headers: {
     'User-Agent': '3.48',
     'Accept': 'application/json',
-    'X-Forwarded-For': generateRandomIP(),
-  }
+    'X-Forwarded-For': ip,
+  },
 };
 
-// Make the request using fetch
-fetch('https://mob2.temp-mail.org/mailbox', options)
+fetch(url, options)
   .then(response => response.json())
   .then(data => {
-    console.log(JSON.stringify(data)); // Output the response in JSON format
+    console.log(JSON.stringify(data));
   })
-  .catch(error => console.error('Error:', error));
+  .catch(error => {
+    console.error('Error:', error);
+  });
 
