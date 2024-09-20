@@ -1,23 +1,27 @@
-const randomIp = () => {
-  return `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
-};
+// pages/api/mailbox.js
 
-const fetchData = async () => {
-  const response = await fetch('https://mob2.temp-mail.org/mailbox', {
-    method: 'POST',
-    headers: {
-      'User-Agent': '3.48',
-      'Accept': 'application/json',
-      'X-Forwarded-For': randomIp(),
-    }
-  });
+import axios from 'axios';
 
-  if (response.ok) {
-    const data = await response.json();
-    console.log(data);
-  } else {
-    console.error('Error:', response.statusText);
+export default async function handler(req, res) {
+  // Generate random IP
+  const getRandomOctet = () => Math.floor(Math.random() * 256);
+  const ip = `${getRandomOctet()}.${getRandomOctet()}.${getRandomOctet()}.${getRandomOctet()}`;
+
+  try {
+    const response = await axios.post('https://mob2.temp-mail.org/mailbox', null, {
+      headers: {
+        'User-Agent': '3.48',
+        'Accept': 'application/json',
+        'X-Forwarded-For': ip,
+      },
+      httpsAgent: new (require('https').Agent)({
+        rejectUnauthorized: false, // Disables SSL verification similar to CURLOPT_SSL_VERIFYPEER => false
+      }),
+    });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({ error: error.message });
   }
-};
-
-fetchData();
+}
